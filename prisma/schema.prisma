@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  email        String?
+  passwordHash String
+  displayName  String
+  avatarUrl    String?
+  isActive     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  createdChats    Chat[]       @relation("ChatCreator")
+  sentMessages    Message[]    @relation("MessageSender")
+  chatMemberships ChatMember[] @relation("UserMemberships")
+
+  @@index([username])
+  @@index([displayName])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  content   String
+  timestamp DateTime @default(now())
+
+  chatId String
+  chat   Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  senderId String
+  sender   User   @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([chatId])
+  @@index([senderId])
+  @@index([timestamp])
+}
+
+enum ChatType {
+  PRIVATE
+  GROUP
+}
+
+model Chat {
+  id          String   @id @default(cuid())
+  type        ChatType
+  name        String?
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  creatorId String?
+
+  creator User? @relation("ChatCreator", fields: [creatorId], references: [id], onDelete: SetNull)
+
+  messages Message[]
+  members  ChatMember[] @relation("ChatParticipants")
+
+  @@index([type])
+}
+
+enum ChatMemberRole {
+  ADMIN
+  MEMBER
+}
+
+model ChatMember {
+  role                     ChatMemberRole @default(MEMBER)
+  joinedAt                 DateTime       @default(now())
+  lastReadMessageTimestamp DateTime?
+
+  userId String
+  user   User   @relation("UserMemberships", fields: [userId], references: [id], onDelete: Cascade)
+
+  chatId String
+  chat   Chat   @relation("ChatParticipants", fields: [chatId], references: [id], onDelete: Cascade)
+
+  @@id([userId, chatId])
+  @@index([userId])
+  @@index([chatId])
+}
