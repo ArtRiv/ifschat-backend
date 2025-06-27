@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -27,6 +28,12 @@ export class AuthController {
   @Post('signup')
   signUp (@Body() signUpDto: SignUpDto): Promise<JwtResponseDto> {
     return this.authService.signUp(signUpDto)
+  }
+
+  @Public()
+  @Get('teste')
+  teste () {
+    return "teste";
   }
 
   // Example on how to use the AuthGuard to protect a route

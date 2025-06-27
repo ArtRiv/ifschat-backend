@@ -12,6 +12,8 @@ import { JwtService } from '@nestjs/jwt'
 import { SignInDto } from '../dtos/sign-in.dto'
 import { SignUpDto } from '../dtos/sign-up.dto'
 import { getRandomAvatar } from '../utils/get-random-avatar'
+import JwtPayload from '../interfaces/jwt-payload.interface'
+import { jwtConstants } from '../constants/constants'
 
 @Injectable()
 export class AuthService {
@@ -107,6 +109,20 @@ export class AuthService {
     const payload = { sub: updatedUser.id, username: updatedUser.username }
     return {
       access_token: await this.jwtService.signAsync(payload),
+    }
+  }
+
+  public async getUserFromAuthenticationToken(token: string) {
+    const payload: JwtPayload = this.jwtService.verify(token, {
+      secret: jwtConstants.secret,
+    });
+
+    const userId = payload.sub;
+
+    if (userId) {
+      return this.usersService.user({
+        id: userId,
+      });
     }
   }
 }

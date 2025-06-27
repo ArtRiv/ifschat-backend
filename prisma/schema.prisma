@@ -53,6 +53,7 @@ model Chat {
   type        ChatType
   name        String?
   description String?
+  isGroupChat Boolean @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
