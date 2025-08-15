@@ -109,4 +109,8 @@ export class AuthService {
       access_token: await this.jwtService.signAsync(payload),
     }
   }
+
+  async getAllUsers (): Promise<any> {
+    return this.usersService.users({});
+  }
 }

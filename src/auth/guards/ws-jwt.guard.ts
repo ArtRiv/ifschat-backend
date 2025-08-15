@@ -16,9 +16,10 @@ export class WsJwtGuard implements CanActivate {
       (typeof client.handshake.query?.token === 'string' ? (client.handshake.query.token as string) : undefined)
 
     if (!token) throw new UnauthorizedException('Missing auth token')
-
+      console.log(token);
     try {
       const payload = this.jwtService.verify(token, { secret: jwtConstants.secret })
+      console.log(payload);
       // Attach to socket for later usage
       ;(client.data as any).user = payload
       return true
