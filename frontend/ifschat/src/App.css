@@ -1,0 +1,48 @@
+.app {
+  font-family: sans-serif;
+  padding: 2em;
+  max-width: 600px;
+  margin: 0 auto;
+}
+.user-list {
+  margin-bottom: 1em;
+}
+.user-list button {
+  margin: 0.2em 0.5em 0.2em 0;
+  padding: 0.4em 1em;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background: #eee;
+  cursor: pointer;
+}
+.user-list .active {
+  background: #cceeff;
+  border-color: #57b;
+}
+.chat-window {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 1em;
+  background: #fafafa;
+}
+.messages {
+  min-height: 120px;
+  max-height: 180px;
+  overflow-y: auto;
+  margin-bottom: 1em;
+}
+.message {
+  margin-bottom: 0.4em;
+}
+.message.me {
+  text-align: right;
+  color: #2979ff;
+}
+.input-row {
+  display: flex;
+  gap: 0.5em;
+}
+.input-row input {
+  flex: 1;
+  padding: 0.5em;
+}

@@ -5,12 +5,14 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  UseGuards,
 } from '@nestjs/common'
 import { Public } from '../decorators/set-metadata.decorator'
 import { AuthService } from '../services/auth.service'
 import { SignInDto } from '../dtos/sign-in.dto'
 import { JwtResponseDto } from '../dtos/jwt-response.dto'
 import { SignUpDto } from '../dtos/sign-up.dto'
+import { AuthGuard } from '../guards/auth.guard'
 
 @Controller('auth')
 export class AuthController {
@@ -20,6 +22,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('signin')
   signIn (@Body() signInDto: SignInDto): Promise<JwtResponseDto> {
+    console.log(signInDto);
     return this.authService.signIn(signInDto)
   }
 

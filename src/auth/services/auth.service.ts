@@ -19,27 +19,19 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
   ) {}
-  /**
-   * Sign in a user with username and password.
-   * @param username - The username of the user.
-   * @param pass - The password of the user.
-   * @returns A promise that resolves to the user object if credentials are valid.
-   * @throws BadRequestException if username or password is missing.
-   * @throws UnauthorizedException if credentials are invalid.
-   */
+
   async signIn ({ username, password }: SignInDto): Promise<JwtResponseDto> {
     if (!username || !password) {
       throw new BadRequestException('Username and password are required')
     }
 
-    const user = await this.usersService.user({ username: username })
+    const user = await this.usersService.findUserAuth({ username })
 
     if (!user || !user.passwordHash) {
       throw new UnauthorizedException('Invalid credentials')
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash)
-
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials')
     }
@@ -55,8 +47,7 @@ export class AuthService {
       throw new BadRequestException('Username and password are required')
     }
 
-    const existingUser = await this.usersService.user({ username: username })
-
+    const existingUser = await this.usersService.user({ username })
     if (existingUser) {
       throw new BadRequestException('Username already exists')
     }
@@ -66,9 +57,9 @@ export class AuthService {
     let newUser
     try {
       newUser = await this.usersService.createUser({
-        username: username,
+        username,
         displayName: username,
-        passwordHash: passwordHash,
+        passwordHash,
       })
     } catch (error) {
       console.error('Error during initial user creation', error)
@@ -89,7 +80,7 @@ export class AuthService {
     try {
       updatedUser = await this.usersService.updateUser({
         where: { id: newUser.id },
-        data: { avatarUrl: avatarUrl },
+        data: { avatarUrl },
       })
     } catch (error) {
       console.error('Error during avatar URL update', error)

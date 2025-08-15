@@ -22,7 +22,12 @@ type Presence = 'online' | 'offline'
 @Injectable()
 @WebSocketGateway({
   namespace: '/chat',
-  cors: { origin: '*', credentials: true },
+  cors: {
+    origin: ['http://localhost:5173'],
+    credentials: true,
+    methods: ['GET','POST'],
+    allowedHeaders: ['Authorization','Content-Type'],
+  },
 })
 @UseGuards(WsJwtGuard)
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
