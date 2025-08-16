@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common'
 import { Public } from '../decorators/set-metadata.decorator'
@@ -16,12 +17,12 @@ import { AuthGuard } from '../guards/auth.guard'
 
 @Controller('auth')
 export class AuthController {
-  constructor (private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
   @Public()
   @HttpCode(HttpStatus.OK)
   @Post('signin')
-  signIn (@Body() signInDto: SignInDto): Promise<JwtResponseDto> {
+  signIn(@Body() signInDto: SignInDto): Promise<JwtResponseDto> {
     console.log(signInDto);
     return this.authService.signIn(signInDto)
   }
@@ -29,9 +30,18 @@ export class AuthController {
   @Public()
   @HttpCode(HttpStatus.CREATED)
   @Post('signup')
-  signUp (@Body() signUpDto: SignUpDto): Promise<JwtResponseDto> {
+  signUp(@Body() signUpDto: SignUpDto): Promise<JwtResponseDto> {
     return this.authService.signUp(signUpDto)
   }
+
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get('signout')
+  signOut(@Req() req: Request): void {
+    const user = (req as any).user as { sub: string, username: string }
+    this.authService.signOut(user.sub);
+  }
+
 
   @Public()
   @Get('get_all_users')

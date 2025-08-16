@@ -36,6 +36,16 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials')
     }
 
+    this.usersService.updateUser({
+      where: {
+        id: user.id
+      },
+      data: {
+        ...user,
+        isActive: true,
+      }
+    })
+
     const payload = { sub: user.id, username: user.username }
     return {
       access_token: await this.jwtService.signAsync(payload),
@@ -99,6 +109,23 @@ export class AuthService {
     return {
       access_token: await this.jwtService.signAsync(payload),
     }
+  }
+
+  async signOut (id: string) {
+    if (!id) return;
+
+    const existingUser = await this.usersService.user({ id })
+    if (!existingUser) {
+      throw new BadRequestException('Username doenst exist')
+    }
+
+    const disconnectedUser = await this.usersService.updateUser({
+        where: { id: id },
+        data: { 
+          ...existingUser,
+          isActive: false,
+        },
+      })
   }
 
   async getAllUsers (): Promise<any> {

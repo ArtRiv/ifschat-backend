@@ -1,15 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { redirect } from "react-router";
 import { clearToken, getToken } from '../services/auth'
+import ActiveUsersList, { type UserData } from '../components/ActiveUsersList';
 
-// Example: show token usage and a simple protected area
 export default function MainPage() {
   const token = useMemo(() => getToken(), [])
   const [me, setMe] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    // Optional: fetch current user using the token (adjust endpoint if exists)
     const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
     fetch(`${API_URL}/user/get_data`, {
       headers: { Authorization: `Bearer ${token}` },
@@ -20,7 +19,6 @@ export default function MainPage() {
       })
       .then(setMe)
       .catch(() => {
-        // Not fatal if /users/me doesn't exist; you can remove this
         setError(null)
       })
   }, [token])
@@ -28,6 +26,10 @@ export default function MainPage() {
   const handleLogout = () => {
     clearToken()
     redirect('/login')
+  }
+
+  const handleSelectUser = (user: UserData) => {
+    console.log('Selected user:', user)
   }
 
   return (
@@ -45,6 +47,7 @@ export default function MainPage() {
         <button onClick={handleLogout}>Log out</button>
       </div>
       {/* Place your chat UI here; pass the token to your WS client */}
+      <ActiveUsersList onSelectUser={handleSelectUser}/>
     </div>
   )
 }

@@ -5,9 +5,8 @@ import { UserDataDTO } from './dtos/user-data.dto';
 
 @Injectable()
 export class UsersService {
-  constructor (private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
-  // Safe projection for general use (no passwordHash)
   async user(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,
   ): Promise<UserDataDTO | null> {
@@ -33,7 +32,6 @@ export class UsersService {
     };
   }
 
-  // New: include passwordHash for authentication flows only
   async findUserAuth(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,
   ): Promise<Pick<User, 'id' | 'username' | 'passwordHash'> | null> {
@@ -53,15 +51,31 @@ export class UsersService {
     cursor?: Prisma.UserWhereUniqueInput
     where?: Prisma.UserWhereInput
     orderBy?: Prisma.UserOrderByWithRelationInput
-  }): Promise<User[]> {
+  }): Promise<UserDataDTO[]> {
     const { skip, take, cursor, where, orderBy } = params
-    return this.prisma.user.findMany({
+    const results = await this.prisma.user.findMany({
       skip,
       take,
       cursor,
       where,
       orderBy,
+      select: {
+        id: true,
+        username: true,
+        avatarUrl: true,
+        chatMemberships: {
+          select: { chatId: true },
+        },
+      }
     })
+        const teste = await this.prisma.user.findMany();
+    console.log(teste)
+    return results.map(u => ({
+      id: u.id,
+      username: u.username,
+      avatarUrl: u.avatarUrl ?? null,
+      chatMemberships: u.chatMemberships.map(m => m.chatId),
+    }))
   }
 
   async createUser(data: Prisma.UserCreateInput): Promise<User> {
@@ -76,8 +90,8 @@ export class UsersService {
   }): Promise<User> {
     const { where, data } = params;
     return this.prisma.user.update({
-        where,
-        data,
+      where,
+      data,
     });
   }
 
